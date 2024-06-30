@@ -1,0 +1,239 @@
+﻿@using WebAppFurnitureOrders.ViewModels;
+@model OrdersViewModel
+
+<div class="container">
+
+    @if (Model.CustomOrders.Any())
+    {
+        <h4 class="orders-head">Заказы с параметрами</h4>
+
+        <div class="filter-container">
+            <label for="custom-order-customer-select">Выберите клиента:</label>
+            <select id="custom-order-customer-select" class="form-control">
+                <option value="">Все клиенты</option>
+                @foreach (var order in Model.CustomOrders.Select(o => o.Client).DistinctBy(c => c.Id))
+                {
+                    <option value="@order.Id"> @order.Surname, телефон: @order.Phone</option>
+                }
+            </select>
+        </div>
+
+        <div class="regular-table-container">
+            <table id="custom-orders-table"  class="table-warehouse">
+            <thead>
+                <tr>
+                    <th>Клиент</th>
+                    <th>Дата</th>
+                    <th>Товар</th>
+                    <th>Описание</th>
+                    <th>Стоимость</th>
+                    <th>Статус</th>
+                    <th>Прогресс</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.CustomOrders)
+                {
+                    <tr data-client-id="@order.Client.Id" data-order-id="@order.Id">
+                        <td>@order.Client.Surname</td>
+                        <td>@order.Date.ToString("dd.MM.yyyy")</td>
+                        <td>@order.Product.Name</td>
+                        <td>@order.Product.Description</td>
+                        <td>@order.TotalCost руб.</td>
+                         <td style="width:10%;">@order.Status</td>
+                        <td>
+                            <div class="progress">
+
+                                <div class="progress-bar" role="progressbar" style="width: @order.ProgressCount%;" aria-valuenow="@order.ProgressCount" aria-valuemin="0" aria-valuemax="100">
+                                    <span>@order.ProgressCount%</span>
+                                </div>
+                            </div>
+                        </td>
+                        @if (order.Status != "Отменен")
+                        {
+                            <td style="width:26%;">
+                                <div class="d-flex">
+                                    <select class="form-control order-status-@order.Id" style="margin-right:10px;">
+                                        <option value="" disabled selected>Выберите статус</option>
+                                        <option value="Отправлено специалисту">Отправлено специалисту</option>
+                                        <option value="Оформляется">Оформляется</option>
+                                        <option value="Передан в производство">Передан в производство</option>
+                                        <option value="Отменен">Отменен</option>
+                                        <option value="Готово">Готово</option>
+                                    </select>
+                                    <button type="button" class="btn-warehouse update-custom-order-status" data-order-id="@order.Id">Обновить</button>
+                                </div>
+
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+        </div>
+    }
+    @if (Model.RegularOrders.Any())
+    {
+        <h4 class="orders-head">Заказы из каталога</h4>
+
+        <div class="filter-container">
+            <label for="regular-order-customer-select">Выберите клиента:</label>
+            <select id="regular-order-customer-select" class="form-control" >
+                <option value="">Все клиенты</option>
+                @foreach (var order in Model.RegularOrders.Select(o => o.Client).DistinctBy(c => c.Id))
+                {
+                    <option value="@order.Id">@order.Surname, телефон: @order.Phone</option>
+                }
+            </select>
+@*             <button type="button" class="btn-warehouse select-regular-orders" style="width:100%;">Выбрать</button> *@
+        </div>
+        <div class="regular-table-container">
+            <table id="regular-orders-table" class="table-warehouse" >
+            <thead>
+                <tr >
+                    <th>Клиент</th>
+                    <th>Дата</th>
+                    <th>Товарная группа</th>
+                    <th>Наименование</th>
+                    <th>Цвет</th>
+                    <th>Общая стоимость</th>
+                    <th>Статус</th>
+                    <th>Прогресс</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.RegularOrders)
+                {
+                    <tr data-client-id="@order.Client.Id" data-order-id="@order.Id">
+                        <td>@order.Client.Surname</td>
+                        <td>@order.Date.ToString("dd.MM.yyyy")</td>
+                        <td>@order.Product.ProductGroup.Name</td>
+                        <td>@order.Product.Name</td>
+                        <td>@order.Color</td>
+                        <td>@order.TotalCost руб.</td>
+                        <td style="width:12%;">@order.Status</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: @order.ProgressCount%;" aria-valuenow="@order.ProgressCount" aria-valuemin="0" aria-valuemax="100">
+                                    @order.ProgressCount%
+                                </div>
+                            </div>
+                        </td>
+                        <td style="width:26%;">
+                            @if (order.Status != "Отменен")
+                            {
+                                <div class="d-flex">
+                                    <select class="form-control order-status-@order.Id" style="margin-right:10px;">
+                                        <option value="" disabled selected>Выберите статус</option>
+                                        <option value="Отправлено специалисту">Отправлено специалисту</option>
+                                        <option value="Оформляется">Оформляется</option>
+                                        <option value="Передан в производство">Передан в производство</option>
+                                        <option value="Отменен">Отменен</option>
+                                        <option value="Готово">Готово</option>
+                                    </select>
+                                    <button type="button" class="btn-warehouse update-regular-order-status" data-order-id="@order.Id">Обновить</button>
+                                </div>
+                            }
+                           
+                        </td>
+                    </tr>
+                }
+            </tbody>
+    </table>
+    
+        </div>
+    }
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('#regular-order-customer-select').on('change', function () {
+            var selectedClientId = $('#regular-order-customer-select').val();
+            filterRegularOrdersByClient(selectedClientId);
+        });
+
+        $('#custom-order-customer-select').on('change', function () {
+            var selectedClientId = $('#custom-order-customer-select').val();
+            filterCustomOrdersByClient(selectedClientId);
+        });
+
+        function filterRegularOrdersByClient(clientId) {
+            $('#regular-orders-table tbody tr').each(function () {
+                var rowClientId = $(this).data('client-id');
+                if (clientId === "" || rowClientId == clientId) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        function filterCustomOrdersByClient(clientId) {
+            $('#custom-orders-table tbody tr').each(function () {
+                var rowClientId = $(this).data('client-id');
+                if (clientId === "" || rowClientId == clientId) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        $(document).on('click', '.update-regular-order-status', function () {
+            var orderId = $(this).data("order-id");
+            var newStatus = $(".order-status-" + orderId).val();
+            if (newStatus) {
+                updateRegularOrderStatus(orderId, newStatus);
+            } else {
+                alert("Пожалуйста, выберите статус");
+            }
+        });
+
+        $(document).on('click', '.update-custom-order-status', function () {
+            var orderId = $(this).data("order-id");
+            var newStatus = $(".order-status-" + orderId).val();
+            if (newStatus) {
+                updateCustomOrderStatus(orderId, newStatus);
+            } else {
+                alert("Пожалуйста, выберите статус");
+            }
+        });
+
+        function updateRegularOrderStatus(orderId, newStatus) {
+            $.post("/Order/UpdateOrderStatus", { orderId: orderId, newStatus: newStatus }, function (response) {
+               
+                var row = $('#regular-orders-table tr[data-order-id="' + orderId + '"]');
+                row.find('td:nth-child(7)').text(newStatus);
+
+                var progressCount = response.newProgressCount; 
+                var progressBar = row.find('.progress-bar');
+                progressBar.css('width', progressCount + '%');
+                progressBar.attr('aria-valuenow', progressCount);
+                progressBar.text(progressCount + '%');
+            });
+        }
+
+        function updateCustomOrderStatus(orderId, newStatus) {
+            $.post("/Order/UpdateOrderStatus", { orderId: orderId, newStatus: newStatus }, function (response) {
+
+                var row = $('#custom-orders-table tr[data-order-id="' + orderId + '"]');
+                row.find('td:nth-child(6)').text(newStatus);
+
+                var progressCount = response.newProgressCount;
+                var progressBar = row.find('.progress-bar');
+                progressBar.css('width', progressCount + '%');
+                progressBar.attr('aria-valuenow', progressCount);
+                progressBar.text(progressCount + '%');
+            });
+        }
+
+    });
+
+
+</script>

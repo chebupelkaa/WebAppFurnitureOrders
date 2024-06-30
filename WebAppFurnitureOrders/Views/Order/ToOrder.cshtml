@@ -1,0 +1,386 @@
+﻿
+
+<div id="canvas-container" style="display: flex; justify-content: center;margin:0 auto;">
+    <div>
+        <!-- Code for 3D model and scripts -->
+    </div>
+    <div id="gui-container"></div>
+   
+    <div class="product-details" style="margin-right:50px;padding-top:10%;">
+        <div style="padding-bottom:8%;">Стоимость:<span id="costSpan"></span> руб.</div>
+       
+        @if (User.Identity.IsAuthenticated)
+        {
+            <button class="btn btn-warehouse make-order-btn" style="width:100%;">Сделать заказ</button>
+           
+        }
+        else
+        {
+            <button class="btn-warehouse" style="width:80%;" onclick="window.location.href='/Account/LogIn'">Войдите, чтобы сделать заказ</button>
+        }
+    </div>
+</div>
+
+
+<div id="orderModal" class="modal">
+    <div class="modal-content" style="width:40%;">
+        <div class="modal-header">
+            <h5 class="modal-title" id="orderModalLabel" style="text-align:center;">Вы уверены, что хотите сделать этот заказ?</h5>
+        </div>
+        <div style="margin-top:10px;">
+            <span id="closeButtonOrder" class="close-button">&times;</span>
+            <div>
+                <div>Мебель: <span id="modalFurnitureType"></span></div>
+                <div>Цвет: <span id="modalColor"></span></div>
+                <div>Текстура: <span id="modalTexture"></span></div>
+                <div>Высота: <span id="modalHeight"></span> м.</div>
+                <div>Ширина: <span id="modalWidth"></span> м.</div>
+                <div>Глубина: <span id="modalDepth"></span> м.</div>
+                <div>Стоимость: <span id="modalCost"></span> руб.</div>
+            </div>
+            <form id="orderForm">
+                <input type="hidden" id="furnitureType" name="furnitureType" />
+                <input type="hidden" id="color" name="color" />
+                <input type="hidden" id="texture" name="texture" />
+                <input type="hidden" id="height" name="height" />
+                <input type="hidden" id="width" name="width" />
+                <input type="hidden" id="depth" name="depth" />
+                <input type="hidden" id="cost" name="cost" />
+                <button type="submit" class="btn-warehouse" id="confirmOrderBtn" style="width:100%;margin-top:10px;">Подтвердить заказ</button>
+            </form>
+            <div id="confirmMessageToOrder" style="margin-top:5px;margin-bottom:10px;text-align:center;color:green;"></div>
+            <div id="error-message" style="color: red;">@* @TempData["orderWarning"] *@</div>
+
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+<style>
+
+</style>
+<script>
+    $(document).ready(function () {
+        const showHideModal = (modal) => { modal.style.display = modal.style.display === 'block' ? 'none' : 'block'; };
+        const modalorder = document.getElementById('orderModal');
+
+        if (params.furnitureType == "Шкаф") {
+            $("#costSpan").text(1200);
+        }
+    
+        $(".make-order-btn").click(function () {
+            showHideModal(modalorder);
+            fillOrderForm();
+        });
+        $("#confirmOrderBtn").click(function () {
+
+            $("#orderForm").submit(function (e) {
+                e.preventDefault(); 
+                createOrder(); 
+            });
+            // showHideModal(modalorder);
+        });
+        $("#closeButtonOrder").click(function () {
+            document.getElementById('confirmMessageToOrder').textContent = '';
+            document.getElementById('error-message').textContent = '';
+            showHideModal(modalorder);
+            location.reload();
+        });
+    });
+
+    function fillOrderForm() {
+        var colorName = getColorName(params.color);
+        $("#furnitureType").val(params.furnitureType);
+        $("#color").val(colorName);
+        $("#texture").val(params.texture);
+        $("#height").val(params.height.toFixed(2));
+        $("#width").val(params.width.toFixed(2));
+        $("#depth").val(params.depth.toFixed(2));
+
+        if (params.furnitureType=="Шкаф") {
+            $("#cost").val(1200);
+            $("#modalCost").text(1200);
+        }
+        if (params.furnitureType == "Комод") {
+            $("#cost").val(1000);
+            $("#modalCost").text(1000);
+        }
+
+        $("#modalFurnitureType").text(params.furnitureType);
+        $("#modalColor").text(colorName);
+        $("#modalTexture").text(params.texture);
+        $("#modalHeight").text(params.height.toFixed(2));
+        $("#modalWidth").text(params.width.toFixed(2));
+        $("#modalDepth").text(params.depth.toFixed(2));
+    }
+
+
+    function getColorName(color) {
+        for (var name in colorList) {
+            if (colorList[name] == color) {
+                return name;
+            }
+        }
+        return "Unknown";
+    }
+
+    function createOrder() {
+        $.ajax({
+            url: "@Url.Action("CreateOrder", "Order")",
+            type: "POST",
+            data: $("#orderForm").serialize(),
+            success: function (result) {
+                if (result.success) {
+                    $('#confirmMessageToOrder').text('Вы заказали товар');
+                } else {
+                    $('#error-message').text(result.errorMessage);
+                }
+            },
+            error: function (xhr, status, error) {
+                $('#error-message').text('Ошибка при заказе.');
+            }
+
+        });
+    }
+
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+
+    var camera = new THREE.PerspectiveCamera(75, 650 / 450, 0.1, 1000);
+    camera.position.z = 2.4;
+
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(650, 450);
+    document.getElementById("canvas-container").appendChild(renderer.domElement);
+
+    var textureLoader = new THREE.TextureLoader();
+    var texture = textureLoader.load('/images/material/texture1.jpg');
+
+    var wardrobeMaterial = new THREE.MeshBasicMaterial({ map: texture });
+    var chestMaterial = new THREE.MeshBasicMaterial({ map: texture });
+
+    var wardrobe = createWardrobe(1, 2, 0.5, wardrobeMaterial);
+    var chest = createChest(0.8, 1, 0.6, chestMaterial);
+    scene.add(wardrobe);
+
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    var gui = new dat.GUI({ autoPlace: false });
+    document.getElementById("canvas-container").appendChild(gui.domElement);
+
+
+    //стили
+    var guiContainer = document.getElementById("gui-container");
+    guiContainer.appendChild(gui.domElement);
+
+
+    var productDetails = document.querySelector(".product-details");
+    guiContainer.appendChild(productDetails);
+
+    var guiElement = document.querySelector('.dg.main');
+    guiElement.style.border = 'none';
+    guiElement.style.paddingTop = '15%';
+    guiElement.style.paddingRight = '20%';
+    guiElement.style.background = 'white';
+
+    var canvasEl = document.querySelector('canvas');
+    canvasEl.style.borderRadius = '5px';
+
+    var canvasElement = document.getElementById("canvas-container");
+    canvasElement.style.border = '2px solid #C8A98F';
+    canvasElement.style.marginTop = '5%';
+    canvasElement.style.width = '90%';
+    canvasElement.style.borderRadius = '5px';
+    canvasElement.style.padding = '20px';
+    canvasElement.style.background = 'white';
+
+
+    var params = {
+        furnitureType: 'Шкаф',
+        color: '#ffffff',
+        height: 2,
+        width: 1,
+        depth: 0.5,
+        texture: 'ЛДСП1',
+        updateFurniture: function () {
+            scene.clear();
+            if (params.furnitureType === 'Шкаф') {
+                wardrobe = createWardrobe(params.width, params.height, params.depth, wardrobeMaterial);
+                $("#costSpan").text(1200);
+                $("#cost").text(1200);
+                $("#modalCost").text(1200);
+                scene.add(wardrobe);
+            } else if (params.furnitureType === 'Комод') {
+
+                // params.height = 1.1;
+                // params.width = 1;
+                // params.depth = 0.5;
+                chest = createChest(params.width, params.height, params.depth, chestMaterial);
+              
+                $("#costSpan").text(1000);
+                $("#cost").text(1000);
+                $("#modalCost").text(1000);
+               
+                scene.add(chest);
+            }
+
+        },
+        updateColor: function () {
+            if (params.furnitureType === 'Шкаф') {
+                wardrobeMaterial.color.set(params.color);
+            } else if (params.furnitureType === 'Комод') {
+                chestMaterial.color.set(params.color);
+            }
+        },
+        updateDimensions: function () {
+            if (params.furnitureType === 'Шкаф') {
+
+                params.width = Math.min(params.width, 2); 
+                params.height = Math.min(params.height, 3); 
+                params.depth = Math.min(params.depth, 1); 
+                params.updateFurniture();
+            } else if (params.furnitureType === 'Комод') {
+
+                params.width = Math.min(params.width, 1.5);
+                params.height = Math.min(Math.max(params.height, 0.4), 1.6);  
+                params.depth = Math.min(params.depth, 0.8);
+                params.updateFurniture();
+            }
+ 
+        }
+    };
+
+    var colorList = {
+        Белый: '#ffffff',
+        Серый: '#808080',
+        Коричневый: '#AD7F00',
+        Абрикосовый: '#FDD9B5',
+        Бежевый: '#FAEDE5',
+     };
+
+    var textureList = {
+        ЛДСП1: '/images/material/texture1.jpg',
+        ЛДСП2: '/images/material/ЛДСП1.jpg',
+        ЛДСП: '/images/material/ЛДСПматовый.jpg',
+        Шпон: '/images/material/ШпонВишня.jpg',
+        МДФ: '/images/material/МДФ.jpg',
+    };
+
+    var furnitureList = ['Шкаф', 'Комод'];
+
+    gui.add(params, 'texture', Object.keys(textureList)).onChange(function (value) {
+        var selectedTexture = textureList[value];
+        if (params.furnitureType === 'Шкаф') {
+            wardrobeMaterial.map = new THREE.TextureLoader().load(selectedTexture);
+        } else if (params.furnitureType === 'Комод') {
+            chestMaterial.map = new THREE.TextureLoader().load(selectedTexture);
+        }
+    });
+
+    gui.add(params, 'furnitureType', furnitureList).onChange(params.updateFurniture);
+    gui.add(params, 'color', colorList).onChange(params.updateColor);
+    gui.add(params, 'height', 0.5, 3).onChange(params.updateDimensions);
+    gui.add(params, 'width', 0.5, 2).onChange(params.updateDimensions);
+    gui.add(params, 'depth', 0.3, 1).onChange(params.updateDimensions);
+
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    function createWardrobe(width, height, depth, material) {
+        var group = new THREE.Group();
+
+        var wardrobeGeometry = new THREE.BoxGeometry(width, height, depth);
+        var wardrobe = new THREE.Mesh(wardrobeGeometry, material);
+
+        var doorGeometry = new THREE.PlaneGeometry(0.001, height * 0.7);
+        var doorMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        var door = new THREE.LineSegments(new THREE.EdgesGeometry(doorGeometry), doorMaterial);
+        door.position.z = depth / 2;
+        door.position.y = height / 6.67 ;
+        wardrobe.add(door);
+
+        var lines = [height * 0.2, height * 0.3, height * 0.4].map(function (y) {
+            var lineGeometry = new THREE.PlaneGeometry(width, 0.001);
+            var lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+            var line = new THREE.LineSegments(new THREE.EdgesGeometry(lineGeometry), lineMaterial);
+            line.position.z = depth / 2;
+            line.position.y = -y;
+            wardrobe.add(line);
+            return line;
+        });
+
+        var handles = [
+            { x: 0.1, y: -height * 0.05 },
+            { x: -0.1, y: -height * 0.05 },
+            { x: 0, y: -height * 0.25 },
+            { x: 0, y: -height * 0.35 },
+            { x: 0, y: -height * 0.45 }
+        ].map(function (pos) {
+            var handleGeometry = new THREE.SphereGeometry(0.03, 16, 16);
+            var handleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            var handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.position.set(pos.x, pos.y, depth / 2);
+            wardrobe.add(handle);
+            return handle;
+        });
+
+        wardrobe.rotation.y = Math.PI / 4;
+        group.add(wardrobe);
+
+        var edges = new THREE.EdgesGeometry(wardrobeGeometry);
+        var lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        var wireframe = new THREE.LineSegments(edges, lineMaterial);
+        wardrobe.add(wireframe);
+
+        return group;
+    }
+
+    function createChest(width, height, depth, material) {
+        var group = new THREE.Group();
+
+        var chestGeometry = new THREE.BoxGeometry(width, height, depth);
+        var chest = new THREE.Mesh(chestGeometry, material);
+
+        var drawerHeight = height / 3;
+
+        var drawers = [drawerHeight / 2, drawerHeight * 1.5, drawerHeight * 2.5].map(function (y) {
+            var drawerGeometry = new THREE.PlaneGeometry(width, 0.001);
+            var drawerMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+            var drawer = new THREE.LineSegments(new THREE.EdgesGeometry(drawerGeometry), drawerMaterial);
+            drawer.position.z = depth / 2;
+            drawer.position.y = height / 1.5 - y;
+            chest.add(drawer);
+            return drawer;
+        });
+
+        var handles = [drawerHeight / 2, drawerHeight * 1.5, drawerHeight * 2.5].map(function (y) {
+            var handleGeometry = new THREE.SphereGeometry(0.03, 16, 16);
+            var handleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            var handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.position.set(0, height / 2 - y, depth / 2);
+            chest.add(handle);
+            return handle;
+        });
+
+        chest.rotation.y = -Math.PI / 4;
+        group.add(chest);
+
+        var edges = new THREE.EdgesGeometry(chestGeometry);
+        var lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        var wireframe = new THREE.LineSegments(edges, lineMaterial);
+        chest.add(wireframe);
+
+        return group;
+    }
+
+
+</script>

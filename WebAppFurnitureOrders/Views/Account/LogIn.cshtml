@@ -1,0 +1,43 @@
+﻿
+
+<div class="log">
+    <div class="wrapperLogIn">
+        <div class="form-box login">
+            <h2>Вход</h2>
+            <form method="post" action="/Account/LogIn">
+                <div class="input-box">
+                    <span class="iconLog">
+                        <img src="../images/mail.svg" >
+                    </span>
+                    <input type="text" required id="emailInput" name="email" />
+                    <label for="emailInput">Email</label>
+                </div>
+                <div class="input-box">
+                    <span class="iconLog">
+                        <img src="../images/lock-closed.svg">
+                    </span>
+                    <input type="password" id="password" name="Password" required />
+                    <label>Пароль</label>
+                </div>
+
+                @Html.ValidationMessage("Email", "", new { @class = "text-danger" })
+                @Html.ValidationMessage("WrongEmailOrPass", "", new { @class = "text-danger" })
+
+                <button type="submit" class="btnLog">Войти</button>
+                <div class="login-register">
+                    <p>Ещё не зарегистрированы? <a href="/Account/Register" class="register-link">Зарегистрироваться</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    var input = document.getElementById("emailInput");
+    input.addEventListener("select", function (event) {
+        this.blur(); // Снятие фокуса с поля ввода
+    });
+</script>

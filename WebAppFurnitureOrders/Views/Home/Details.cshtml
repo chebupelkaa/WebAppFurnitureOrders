@@ -1,0 +1,110 @@
+﻿@model ProductViewModel
+@using Microsoft.AspNetCore.Identity;
+
+<div class="row detail">
+    <div class="col-md-5 detail-picture  d-flex align-items-center justify-content-center" >
+        <img id="productImage" src="~/images/@Model.ImageUrls[0]" alt="Product Image" class="img-fluid">
+    </div>
+    <div class="col main-detail">
+        <h3>@Model.ProductGroup.Name @Model.Name</h3>
+        <div>
+            <form name="colorForm">
+                <div class="d-inline-flex align-items-center" style="padding-bottom:15px;padding-top:10px;">
+                    <div class="me-2">Цвет:</div>
+                        <select id="color" name="color" class="form-select" style="width:70%;">
+                            @foreach (var color in Model.Colors)
+                            {
+                                <option value="@color">@color</option>
+                            }
+                        </select>
+                </div>
+            </form>
+        </div>
+     
+        <div class="supplier-info">
+            <div>@Html.Raw(Model.Description)</div>
+            <div>Поставщик деталей: @Model.Provider.Name, @Model.Provider.Address,  @Model.Provider.Phone</div>
+        </div>
+        <hr>
+        <div class="product-price">Цена: @Model.Cost руб.</div>
+       
+        @if (User.Identity.IsAuthenticated)
+        {
+            <button class="btn-warehouse" style="width:100%;" type="button" id="btn-order-id" class="btn-onorder"> Заказать </button>
+        }
+        else
+        {
+            <button class="btn-warehouse" style="width:100%;" onclick="window.location.href='/Account/LogIn'">Войдите, чтобы сделать заказ</button>
+        }
+    </div>
+</div>
+
+
+<div id="orderModal" class="modal" style="display: none;margin-top:30px; ">
+    <div class="modal-content" style="width:350px;">
+        <div>
+            <span id="closeButton" class="close-button">&times;</span>
+            <h4 style="text-align:center;">Подтвердите заказ</h4>
+            <div style="text-align:center;margin-bottom:10px;margin-top:10px;">Цена: @Model.Cost руб.</div>
+            <form id="orderForm">
+                <input type="hidden" name="ProductId" value="@Model.Id" />
+                <input type="hidden" name="TotalCost" value="@Model.Cost" />
+                <input type="hidden" name="Status" value="Отправлено специалисту" />
+                <button type="submit" class="btn-onorder">Оформить заказ</button>
+            </form>
+            <div id="confirmationMessage" style="color:green;margin-top:10px;margin-bottom:10px;"></div>
+            <div id="errorMessage" style="color:red;margin-top:10px;margin-bottom:10px;"></div>
+        </div>
+    </div>
+</div> 
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('orderModal');
+        const confirmationMessage = document.getElementById('confirmationMessage');
+
+        document.querySelector('#btn-order-id').addEventListener('click', () => {
+            modal.style.display = 'block'; 
+        });
+
+        document.getElementById('closeButton').addEventListener('click', () => {
+            modal.style.display = 'none';
+            document.getElementById('confirmationMessage').textContent = '';
+            document.getElementById('errorMessage').textContent = '';
+            location.reload();
+        });
+
+    });
+
+
+    $(document).ready(function () {
+        var imageUrls = @Html.Raw(Json.Serialize(Model.ImageUrls));
+
+        $('#color').change(function () {
+            var selectedColorIndex = $(this).prop('selectedIndex');
+            var imageUrl = '/images/' + imageUrls[selectedColorIndex];
+            $('#productImage').attr('src', imageUrl);
+        });
+
+        $('#orderForm').submit(function (e) {
+            e.preventDefault();
+            var formData = $(this).serialize();
+            $.post('/Home/OrderProduct', formData, function (response) {
+                if (response.success) {
+                    $('#confirmationMessage').text('Заказ успешно оформлен!');
+                } else {
+                    $('#errorMessage').text(response.errorMessage);
+                }
+            });
+        });
+    });
+
+
+</script>
+
+
+
+

@@ -1,0 +1,61 @@
+﻿@model List<ReviewModel>
+
+<div class="container">
+
+    @if (User.Identity.IsAuthenticated) @Html.Partial("AddReview")
+    else{
+        <div style="text-align:center;font-size:18px;padding:30px;">Войдите, чтобы оставить отзыв</div>
+    }
+    @if (TempData["ErrorNull"] != null)
+    {
+        <div style="color:red;text-align:center;">@TempData["ErrorNull"] </div>
+    }
+
+    @foreach (var review in Model)
+    {
+        <div class="review">
+            <div class="review-content">
+                <img src="~/images/avatar/@review.Client.Picture" class="user-avatar" style="width:65px;height:65px;margin-top:8px;">
+                <div class="review-info">
+                    <div class="card-title">@review.Client.Surname</div>
+                    <div class="output-star">
+                        @{
+                            for (int i = 1; i < 6; i++)
+                            {
+                                if (i <= @review.Rating){<i class="fa fa-star"></i>}
+                                else {<i class="fa fa-star-o"></i>}
+                            }
+                        }
+                    </div>
+                    
+                    <div>@review.Date.ToShortDateString()</div>
+                </div>
+            </div>
+            <div class="card-text">@review.Comment</div>
+        </div>
+    }
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+    const stars = document.querySelectorAll('.star-widget label');
+    const ii = document.querySelectorAll('.star-widget input');
+
+    for (let i = 0; i < stars.length; i++) {
+        stars[i].addEventListener('click', () => {
+            for (let j = 0; j < stars.length; j++) {
+                stars[j].classList.remove('selected');
+            }
+
+            ii[i].checked = 'true';
+            stars[i].classList.add('selected');
+            for (let k = i - 1; k >= 0; k--) {
+                stars[k].classList.add('selected');
+            }
+        });
+    }
+
+</script>

@@ -1,0 +1,51 @@
+﻿
+
+<div class="row mt-3" style="margin-bottom:10px;">
+    <div class="col-md-12">
+        <form id="reviewForm" method="post" action="@Url.Action("AddReview", "Review")">
+            <div class="mb-3">
+                <label class="form-label"></label>
+
+                <div class="star-widget">
+                    <input type="radio" name="Rating" id="rate-1" value="1" />
+                    <label for="rate-1" class="fa fa-star"></label>
+                    <input type="radio" name="Rating" id="rate-2" value="2" />
+                    <label for="rate-2" class="fa fa-star"></label>
+                    <input type="radio" name="Rating" id="rate-3" value="3" />
+                    <label for="rate-3" class="fa fa-star"></label>
+                    <input type="radio" name="Rating" id="rate-4" value="4" />
+                    <label for="rate-4" class="fa fa-star"></label>
+                    <input type="radio" name="Rating" id="rate-5" value="5" />
+                    <label for="rate-5" class="fa fa-star"></label>
+                </div>
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey("Rating"))
+                {
+                    <div class="text-danger" style="text-align:center;">
+                        @foreach (var errorMessage in ViewData.ModelState["Rating"].Errors)
+                        {
+                            @errorMessage.ErrorMessage
+                            <br />
+                        }
+                    </div>
+                }
+              
+                <textarea class="comment" id="comment" name="Comment" rows="3"></textarea>
+
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey("Comment"))
+                {
+                    <div class="text-danger" style="text-align:center;">
+                        @foreach (var errorMessage in ViewData.ModelState["Comment"].Errors)
+                        {
+                            @errorMessage.ErrorMessage
+                            <br />
+                        }
+                    </div>
+                }
+
+
+            </div>
+            <button type="submit" class="btn-review">Добавить отзыв</button>
+        </form>
+    </div>
+</div>
+

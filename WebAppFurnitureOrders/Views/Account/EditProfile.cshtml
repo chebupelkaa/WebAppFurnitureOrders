@@ -1,0 +1,61 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<IdentityUser> userManager;
+
+@model ClientModel
+
+
+
+<div class="edit-profile">
+    <form action="" method="post"  enctype="multipart/form-data">
+        <img src="@Url.Content("~/images/avatar/" + TempData["UserAvatar"])" class="user-avatar" style="height:100px;">
+        <div class="flex">
+            <div class="inputBox" style="margin-top:5px;">   
+                <span>ФИО </span>
+                <input type="text" name="Surname" value="@Model.Surname" class="box" asp-for="Surname" required>
+                <span>Email </span>
+                <input type="email" name="Email" value="@Model.Email" class="box" asp-for="Email" readonly>
+                <span>Адрес </span>
+                <input type="text" name="Address" value="@Model.Address" class="box" asp-for="Address">
+                <span>Телефон </span>
+                <input type="text" name="Phone" value="@Model.Phone" class="box" asp-for="Phone" required>
+            </div>
+            <div class="inputBox">
+                <span>Аватарка</span>
+
+                <input asp-for="ImageFile" name="ImageFile"  class="form-control" style="margin-top:5px;" accept="image/jpg, image/jpeg, image/png" />
+               @*  <span asp-validation-for="ImageFile" ></span> *@
+
+                <span>Текущий пароль</span>
+                <input type="password" name="CurrentPassword" placeholder="Введите текущий пароль" class="box" required>
+
+                <span>Новый пароль</span>
+                <input type="password" name="NewPassword" placeholder="Введите новый пароль" class="box">
+
+                <span>Подтвердите пароль</span>
+                <input type="password" name="ConfirmPassword" placeholder="Подтвердите новый пароль" class="box">
+            </div>
+        </div>
+        @Html.ValidationMessageFor(model => model.CurrentPassword, "", new { @class = "text-danger" })
+        @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+        @Html.ValidationMessageFor(model => model.Surname, "", new { @class = "text-danger" })
+        @Html.ValidationMessageFor(model => model.ConfirmPassword, "", new { @class = "text-danger" })
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="text-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorEdit"] != null)
+        {
+            <div class="text-error">
+                @TempData["ErrorEdit"]
+            </div>
+        }
+
+        <input type="submit" value="Редактировать" name="UpdateProfile" class="btn-edit-profile">
+
+    </form>
+
+</div>

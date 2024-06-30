@@ -1,0 +1,58 @@
+﻿
+
+<div class="log" style="padding:2%;">
+    <div class="wrapperLogIn">
+        <div class="form-box login">
+            <h2>Регистрация</h2>
+            <form method="post" action="/Account/Register">
+                <div class="input-box">
+                    <span class="iconLog">
+                        <img src="../images/mail.svg">
+                    </span>
+                    <input type="text" required id="emailInput" name="email" />
+                    <label for="emailInput">Email</label>
+                </div>
+                <div class="input-box">
+                    <span class="iconLog">
+                        <img src="../images/lock-closed.svg">
+                    </span>
+                    <input type="password" id="password" name="Password" required />
+                    <label>Пароль</label>
+                </div>
+                <div class="input-box">
+                    <span class="iconLog">
+                        <img src="../images/lock-closed.svg">
+                    </span>
+                    <input type="password" id="passwordRepeat" name="PasswordConfirm" required />
+                    <label>Повторите пароль</label>
+                </div>
+
+                @if (TempData["ErrorsReg"] != null)
+                {
+                    <ul style="margin:0px;padding:0px;padding-bottom:5px;color:red;">
+                        @foreach (var error in (IEnumerable<string>)TempData["ErrorsReg"])
+                        {
+                            <li style="margin:0px;padding:0px;color:red;">@error</li>
+                        }
+                    </ul>
+                }
+                @* @Html.ValidationMessage("Email", "", new { @class = "text-danger" }) *@
+
+                <button type="submit" class="btnLog">Зарегистрироваться</button>
+                <div class="login-register">
+                    <p>Уже аторизированны? <a href="/Account/LogIn" class="register-link">Войти</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    var input = document.getElementById("emailInput");
+    input.addEventListener("select", function (event) {
+        this.blur(); 
+    });
+</script>

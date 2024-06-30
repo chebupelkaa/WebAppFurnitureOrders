@@ -1,0 +1,249 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<IdentityUser> signInManager;
+
+@inject UserManager<IdentityUser> userManager;
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>АртМебель</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="~/lib/jquery/dist/jquery.min.js" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="~/css/Home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/LogIn.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Catalog.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Order.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Account.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/EditProfile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Warehouse.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Review.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebAppFurnitureOrders.styles.css" asp-append-version="true" />
+
+    <link rel="icon" type="image/x-icon" href="~/img_icon3.ico" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+</head>
+<body>
+    <header class="headerClass">
+        <a href="/Home/Catalog" class="logo">АртМебель</a>
+        <nav class="headerNav">
+            <ul class="headerUl">
+
+                @{
+                    @if (User.Identity.IsAuthenticated){
+                        if (string.Join(", ", await userManager.GetRolesAsync(await userManager.GetUserAsync(User)))=="Специалист по приему заказов")
+                        {
+                            <li class="headerLi"><a href="/Order/OrdersForSpecialist">управление заказами</a></li>
+                            <li class="headerLi"><a href="/Order/Statistics">мониторинг</a></li>
+                        }
+                        if (string.Join(", ", await userManager.GetRolesAsync(await userManager.GetUserAsync(User))) == "Администратор")
+                        {
+                            <li class="headerLi"><a href="/Roles/Index">управление пользователями</a></li>
+                        }
+                        if (string.Join(", ", await userManager.GetRolesAsync(await userManager.GetUserAsync(User))) == "Менеджер по управлению запасами")
+                        {
+                            <li class="headerLi"><a href="/Warehouse/Index">управление запасами</a></li>
+                        }
+                    }
+                }
+@*                 <li class="headerLi"><a href="/Roles/Index">управление пользователями</a></li> *@
+@*                 <li class="headerLi"><a href="/Order/OrdersForSpecialist">управление заказами</a></li>
+                <li class="headerLi"><a href="/Warehouse/Index">управление складом</a></li>
+                <li class="headerLi"><a href="/Order/Statistics">мониторинг</a></li>
+ *@
+
+                <li class="headerLi"><a href="/Review/AllReviews">отзывы</a></li>
+
+                <li class="headerLi">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="notification-icon" onclick="toggleNotifications()">
+                            <img id="notification-icon" src="~/images/icons-u1.png" alt=" " class="icon">
+
+                            <div class="notification-dropdown">
+                                <a href="#" id="markAsReadLink">Пометить как прочитанное</a>
+                                <ul>
+                                    <li></li>
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                </li>  
+                @* уведомления *@
+  
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li class="headerLi">
+                        <img src="@Url.Content("~/images/avatar/" + TempData["UserAvatar"])" class="user-pic" onclick="toggleUserMenu()">
+                        <div class="sub-menu-wrap-user" id="subMenuUser">
+                            <div class="sub-menu-user">
+                                <div class="user-info">
+                                    <img src="@Url.Content("~/images/avatar/" + TempData["UserAvatar"])">
+                                    <div class="user-info-inside">
+                                        <h3>@signInManager.Context.User.Identity.Name</h3>
+                                        <small>@string.Join(", ", await userManager.GetRolesAsync(await userManager.GetUserAsync(User)))</small>
+                                    </div>       
+                                </div>
+                                <hr />
+                                <a href="/Account/EditProfile" class="sub-menu-link-user">
+                                    <p>Профиль</p>
+                                    <span>></span>
+                                </a>
+                                <a href="/Order/AllOrders" class="sub-menu-link-user">
+                                    <p>Мои заказы</p>
+                                    <span>></span>
+                                </a>
+                                <a href="/Account/LogOut" class="sub-menu-link-user">
+                                    <p>Выйти</p>
+                                    <span>></span>
+                                </a>
+                            </div>
+                        </div>
+
+                    </li>
+                }
+                else
+                {
+                    <li class="headerLi"><button class="btn-login" onclick="window.location.href='/Account/LogIn'">Войти</button></li>
+                }
+
+
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" >
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> 
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var notificationIcon = document.getElementById('notification-icon');
+            var markAsReadLink = document.getElementById('markAsReadLink');
+
+            if (notificationIcon) {
+                fetch('/Notification/CheckUnreadNotifications')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.hasUnread) {
+                            notificationIcon.src = '/images/icons-u2.png';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при проверке уведомлений:', error);
+                    });
+            }
+
+            if (markAsReadLink) {
+                markAsReadLink.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    fetch('/Notification/MarkAllAsRead', { method: 'POST' })
+                        .then(response => {
+                            if (response.ok) {
+                                notificationIcon.src = "/images/icons-u1.png";
+                            } else {
+                                console.error('Ошибка при пометке уведомлений как прочитанных');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Ошибка при пометке уведомлений как прочитанных:', error);
+                        });
+                });
+            }
+
+           
+        });
+
+
+        let subMenuUser = document.getElementById("subMenuUser");
+        let menuNotification = document.getElementById("notification-dropdown");
+        let notificationDropdown = document.querySelector('.notification-dropdown');
+
+        function toggleUserMenu() {
+            if (subMenuUser.classList.contains("open-menu")) {
+                subMenuUser.classList.remove("open-menu");               
+            } else {
+                subMenuUser.classList.add("open-menu");
+                notificationDropdown.style.display = 'none';
+            }
+        }
+
+        function toggleNotifications() {
+
+            if (subMenuUser.classList.contains("open-menu")) {
+                subMenuUser.classList.remove("open-menu");
+            } 
+            if (notificationDropdown.style.display === 'none') {
+                notificationDropdown.style.display = 'block';
+                loadNotifications();
+            } 
+            else notificationDropdown.style.display = 'none';
+        }
+
+
+
+        function loadNotifications() {
+
+            fetch('/Notification/GetNotifications')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Полученные данные:', data);
+
+                    var notificationList = notificationDropdown.querySelector('ul');
+                    notificationList.innerHTML = '';
+                    
+                    if (data && data.length > 0) {
+                        var reversedData = data.reverse();
+                        reversedData.forEach(notification => {
+                            console.log('соо:', notification.status);
+                            var li = document.createElement('li');
+                            var date = new Date(notification.date);
+
+                            var formattedDate = date.toLocaleDateString("ru-RU", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric"
+                            });
+
+                            li.innerHTML = formattedDate + "<br>" + notification.message;
+                            notificationList.appendChild(li);
+
+                            if (notification.status === 'Непрочитано') {
+                                var statusDot = document.createElement('span');
+                                statusDot.classList.add('status-dot');
+                                li.appendChild(statusDot);
+                            }
+                        });
+
+                    } else {
+                        notificationList.innerHTML = '<li>Нет новых уведомлений</li>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке уведомлений:', error);
+                });
+        }
+
+
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,157 @@
+﻿
+
+.log {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.wrapperLogIn {
+    position: relative;
+    margin-top:2%;
+    width: 430px;
+    height: 440px;
+    background:transparent;
+    border: 2px solid rgba(255,255,255,.5);
+    border-radius:20px;
+    backdrop-filter:blur(20px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.wrapperLogIn .form-box{
+    width:100%;
+    padding:40px;
+}
+
+.form-box h2{
+    font-size:2em;
+    color:#162938;
+    text-align:center;
+}
+
+.input-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px solid #162938;
+    margin: 30px 0;
+}
+
+.input-box label {
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: #162938;
+    font-weight:500;
+    pointer-events:none;
+    transition:.5s;
+}
+
+.input-box input:focus ~ label,
+.input-box input:valid ~ label,
+.input-box input:not(:empty):not(:invalid) ~ label {
+    top: -5px;
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
+
+/*старое наверн*/
+/*.input-box label.active {
+    top: -5px;
+    outline: none;
+    outline: none;
+    border-color: none;
+    box-shadow: none;
+}*/
+
+/*input[type="email"]:focus {
+    outline: none;
+    outline: none;
+    border-color: none;
+    box-shadow: none;
+}*/
+
+.input-box input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    color: #162938;
+    font-weight: 600;
+    padding: 0 35px 0 5px;
+}
+    .input-box input:focus {
+        background: transparent;
+        color: #162938;
+        outline: 0;
+        outline-offset: 0;
+    }
+    .input-box input:disabled {
+        background: transparent;
+        color: #162938;
+        outline: 0;
+        outline-offset: 0;
+    }
+
+    .input-box input:active {
+        background: transparent;
+        color: #162938;
+        outline: 0;
+        outline-offset: 0;
+    }
+
+
+.input-box .iconLog {
+    width: 20px;
+    height: 20px;
+
+    position: absolute;
+    right: 8px;
+    font-size: 1.2em;
+    color: #162938;
+    line-height: 57px;
+}
+
+.btnLog {
+    width: 100%;
+    height: 45px;
+    background: #C8A98F;
+    outline: none;
+    border:none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    color: #fff;
+    font-weight: 500;
+    transition:.5s;
+}
+.btnLog:hover {
+    background: white;
+    border:1px solid #C8A98F;
+    color: #C8A98F;
+}
+
+.login-register {
+    font-size: .9em;
+    color: #162938;
+    text-align:center;
+    font-weight:500;
+    margin: 25px 0 0px;
+   
+}
+
+.login-register p a {
+    color: #162938;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.login-register p a:hover {
+    text-decoration: underline;
+}   

@@ -1,0 +1,146 @@
+﻿
+.nav-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-menu li {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+
+
+.catalog-div{
+    padding-top:20px;
+}
+
+.nav li {
+   /* border-right: 1px solid #808080;
+    border-left: 1px solid #808080;*/
+    /* border-width: 0 0 0 4px;*/
+}
+
+.formSearch {
+    position: relative;
+    width: 260px;
+    margin: 0 auto;
+}
+/*#162938*/
+.searchDiv input {
+    width: 100%;
+    height: 42px;
+    padding-left: 10px;
+    border: 2px solid #C8A98F;
+    border-radius: 5px;
+    outline: none;
+    background: white;
+    color: #9E9C9C;
+}
+
+.searchDiv button {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    width: 42px;
+    height: 42px;
+    border: none;
+    background: #C8A98F url('/images/searchButton.svg') no-repeat center;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+.container  {
+    padding-top:  2px;
+}
+.nav.nav-pills {
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav.nav-pills .nav-item {
+    flex: 1;
+}
+
+.nav.nav-pills .nav-link {
+    text-align: center;
+}
+
+
+.nav-pills .nav-link {
+    color: #C8A98F; 
+    font-weight: bold;
+    font-size:20px;
+    transition:.5s;
+}
+
+
+.nav-pills .nav-link:hover {
+    background: #C8A98F;
+    color:white;
+}
+
+    /*nav-pills .nav-link:active,
+    .nav-pills .nav-link.active {*/ /* Separate rule for active link */
+        /*background: #C8A98F;
+        color: white;
+    }*/
+
+.card-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 20px;
+    padding-top:30px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+
+.btn-more {
+    width: 100%;
+    height: 40px;
+    background: transparent;
+    border: 2px solid #C8A98F;
+    outline: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: #C8A98F;
+    font-weight: 500;
+    margin-top: 5px;
+    transition: .5s;
+}
+
+
+.btn-more:hover {
+    background: #C8A98F;
+    color: white;
+}
+
+.main {
+    border-radius: 0px;
+    border: 2px solid #C8A98F;
+    background-color: white;
+    /*margin: 20px;*/
+}
+
+.pagination button {
+    background: #C8A98F;
+    border: 2px solid #C8A98F;
+    color: white;
+    margin-top: 10px;
+}
+
+.pagination button:hover {
+    background: white;
+    border: 2px solid #C8A98F;
+    color: #C8A98F;
+}

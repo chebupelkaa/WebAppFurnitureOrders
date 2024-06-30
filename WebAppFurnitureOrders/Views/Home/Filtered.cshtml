@@ -1,0 +1,90 @@
+﻿@model List<ProductViewModel>
+
+<div class="card-group" id="cardGroup">
+    @foreach (var product in Model)
+    {
+        <div class="card " style="background:transparent;border:none;">
+            <div class="card main">
+                <div id="carousel-@product.Id" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @foreach (var imageUrl in product.ImageUrls)
+                        {
+                            <div class="carousel-item @(imageUrl == product.ImageUrls.First() ? "active" : "")">
+                                <img src="~/images/@imageUrl" class="d-block w-100" style="width: 200px; height: 200px;" alt="...">
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@product.Id" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-@product.Id" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">@product.ProductGroup.Name @product.Name</h5>
+                    <p class="card-text">@product.Cost руб. </p>
+                    <button class="btn-more" onclick="redirectToDetails(@product.Id)">Подробнее</button>
+
+
+@*                     <p class="card-text" style="text-align:center;"><small class="text-muted">@product.Provider.Name</small></p> *@
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="pagination justify-content-center" id="pagination"></div>
+<div style="text-align:center;    color: #C8A98F;">
+    Наши контакты: +375298462742, г. Гомель, ул.Гагарина, 65
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+    function redirectToDetails(productId) {
+        window.location.href = '/Home/Details?productId=' + productId;
+    }
+
+    const cards = document.querySelectorAll('.card');
+    const cardGroup = document.getElementById('cardGroup');
+    const pagination = document.getElementById('pagination');
+    const cardsPerPage = 16; 
+    let currentPage = 1;
+
+    function showPage(page) {
+        const start = (page - 1) * cardsPerPage;
+        const end = start + cardsPerPage;
+
+        cards.forEach((card, index) => {
+            if (index >= start && index < end) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function createPagination() {
+        const totalPages = Math.ceil(cards.length / cardsPerPage);
+
+        let paginationHTML = '<ul class="pagination">';
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHTML += `<li class="page-item"><button class="page-link" onclick="showPage(${i})">${i}</button></li>`;
+        }
+        paginationHTML += '</ul>';
+
+        pagination.innerHTML = paginationHTML;
+    }
+
+    createPagination();
+    showPage(currentPage);
+
+    function updatePagination() {
+        createPagination();
+        showPage(currentPage);
+    }
+
+
+</script>

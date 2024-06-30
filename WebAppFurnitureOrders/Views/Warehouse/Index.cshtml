@@ -1,0 +1,634 @@
+﻿@using WebAppFurnitureOrders.ViewModels;
+@model WarehouseManagementViewModel
+
+<h4 class="head">Управление запасами</h4>
+<div class="form-group" style="text-align:center;">
+    <label for="warehouse-select"> </label>
+    <select id="warehouse-select" class="form-control select" onchange="fetchWarehouseProducts()">
+        @foreach (var warehouseNumber in Model.Warehouses.SelectMany(w => w.WarehouseProducts).Select(wp => wp.WarehouseNumber).Distinct())
+        {
+            <option value="@warehouseNumber">склад @warehouseNumber</option>
+        }
+    </select>
+</div>
+
+<hr>
+<p style="text-align:center; padding:0px;margin:0px;visibility: hidden;"><span id="warehouse-number"></span></p>
+<table class="table-warehouse">
+    <thead>
+        <tr>
+            <th scope="col">ID товара</th>
+            <th scope="col">Название</th>
+            <th>Товарная группа</th>
+            <th>Поставщик</th>
+            <th>Стоимость</th>
+            <th>Количество</th>
+            <th>Материал</th>
+            <th>Цвет</th>
+           @*  <th>Номер склада</th> *@
+            <th style="width:20%;">Действие</th>
+        </tr>
+    </thead>
+    <tbody id="warehouse-products">
+
+    </tbody>
+</table>
+<div class="buttons">
+    <button id="add-btn" class="btn-warehouse">Добавить новый товар на склад</button>
+    <button id="add-btn2" class="btn-warehouse">Добавить существующий товар на склад</button>
+</div>
+
+
+<div id="myModal" class="modal">
+    <div class="modal-content" style="width:50%;">
+        <span id="closeButton1" class="close-button">&times;</span>
+        <h2>Новый товар на склад</h2>
+        <form id="add-product-form" enctype="multipart/form-data">
+            <div class="flex-w">
+                <div class="inputBox-w">
+
+                    <label for="product-name">Название:</label>
+                    <input type="text" id="product-name" name="Name" class="box-w" required>
+
+                    <label for="product-manufacturer">Поставщик:</label>
+                    <select id="product-manufacturer" name="ProviderId" class="form-select">
+                        @foreach (var provider in Model.Providers)
+                        {
+                            <option value="@provider.Id">@provider.Name</option>
+                        }
+                    </select>
+                    <label for="product-group">Товарная группа:</label>
+                    <select id="product-group" name="ProductGroupId" class="form-select">
+                        @foreach (var group in Model.ProductGroups)
+                        {
+                            <option value="@group.Id">@group.Name</option>
+                        }
+                    </select>
+
+                    <label for="product-warehouseNumber">Склад :</label>
+                    <input type="number" id="product-warehouseNumber" name="WarehouseNumber" min="1" class="box-w" required>
+
+                    <label for="product-cost">Стоимость:</label>
+                    <input type="number" id="product-cost" name="Cost" min="0" class="box-w" required>
+                </div>
+                <div class="inputBox-w">
+                    <label for="product-description">Описание:</label>
+                    <input type="text" id="product-description" name="Description" class="box-w" required>
+
+                    <label for="product-color">Цвет:</label>
+                    <input type="text" id="product-color" name="Color" class="box-w" required>
+
+                    <label for="product-material">Материал:</label>
+                    <input type="text" id="product-material" name="Material" class="box-w" required>
+
+                    <label for="product-count">Количество:</label>
+                    <input type="number" id="product-count" name="Count" class="box-w" min="0" required>
+
+                    <input asp-for="AddProductToWarehouseViewModel.ImageFile" name="ImageFile" class="form-control" style="margin-top:40px;" accept="image/jpg, image/jpeg, image/png" />
+                    <span asp-validation-for="AddProductToWarehouseViewModel.ImageFile" class="text-danger"></span>
+                </div>
+            </div>
+ 
+            <button type="submit" class="btn-warehouse" style="width:100%;">Добавить новый товар на склад</button>
+        </form>
+        <div id="confirmMessageAdd1" style="margin-top:10px;margin-bottom:10px;text-align:center;color:green"></div>
+        <div id="errorAddNew" style="margin-top:10px;margin-bottom:10px;text-align:center;color:red"></div>
+    </div>
+</div>
+
+<div id="myModal2" class="modal">
+    <div class="modal-content" style="width:50%;">
+        <span id="closeButton2" class="close-button">&times;</span>
+        <h3 style="text-align:center;">Добавить продукт на склад</h3>
+        <form id="add-product-to-warehouse-form">
+            <div class="flex-w">
+                <div class="inputBox-w">
+                    <label for="existing-product">Выбрать товар:</label>
+                    <select id="existing-product" name="ProductId" class="form-select">
+                        @foreach (var product in Model.Products)
+                        {
+                            @* <option value="@product.Id">@product.ProductGroup @product.Name @product.Description @product.Cost</option> *@
+                            if (product.Type == "из каталога")
+                            {
+                                <option value="@product.Id">@product.ProductGroup.Name @product.Name @product.Cost руб.</option>
+                            }
+                        }
+                    </select>
+
+                    <label for="product-warehouseNumber">Склад :</label>
+                    <input type="number" id="product-warehouseNumber" name="WarehouseNumber" class="box-w" min="0" required>
+
+                    <label for="product-count">Количество:</label>
+                    <input type="number" id="product-count" name="Count" class="box-w" min="0" required>
+                </div>
+                <div class="inputBox-w">
+                    <label for="product-color">Цвет:</label>
+                    <input type="text" id="product-color" name="Color" class="box-w" required>
+
+                    <label for="product-material">Материал:</label>
+                    <input type="text" id="product-material" name="Material" class="box-w" required>
+
+                    <input asp-for="AddProductToWarehouseViewModel.ImageFile" name="ImageFile" class="form-control" style="margin-top:40px;" accept="image/jpg, image/jpeg, image/png" />
+                    <span asp-validation-for="AddProductToWarehouseViewModel.ImageFile" class="text-danger"></span>
+                </div>
+            </div>
+            <button type="submit" class="btn-warehouse" style="width:100%;">Добавить на склад</button>
+        </form>
+        <div id="confirmMessageAdd2" style="margin-top:10px;margin-bottom:10px;text-align:center;color:green"></div>
+        <div id="errorAdd" style="margin-top:10px;margin-bottom:10px;text-align:center;color:red"></div>
+    </div>
+</div>
+
+
+<div id="editModal" class="modal">
+    <div class="modal-content" style="margin-top:0px;margin-bottom:20px;">
+        <span id="closeButtondEdit" class="close-button">&times;</span>
+        <h4 style="text-align:center;">Редактирование</h4>
+
+        <form id="edit-product-form" enctype="multipart/form-data">
+
+            <img src="" id="image-edit-output" alt="Product Image" class="product-image" name="ImageURL">
+
+            <div class="flex-w">
+                <div class="inputBox-w">
+
+                    <input type="text" id="product-nameId-edit" name="ProductId" required hidden>
+                    <input type="text" id="warehouseId-edit" name="WarehouseId" required hidden>
+                    <input type="text" id="warehouse-productId-edit" name="WarehouseProductId" required hidden>
+
+                    <label for="product-name-edit">Название:</label>
+                    <input type="text" id="product-name-edit" name="Name" class="box-w" required>
+
+                    <label for="product-manufacturer-edit">Поставщик:</label>
+                    <select id="product-manufacturer-edit" name="ProviderId" class="form-select">
+                        @foreach (var provider in Model.Providers)
+                        {
+                            <option value="@provider.Id">@provider.Name</option>
+                        }
+                    </select>
+
+                    <label for="product-group-edit">Товарная группа:</label>
+                    <select id="product-group-edit" name="ProductGroupId" class="form-select">
+                        @foreach (var group in Model.ProductGroups)
+                        {
+                            <option value="@group.Id">@group.Name</option>
+                        }
+                    </select>
+
+                    <label for="product-description-edit">Описание:</label>
+                    <input type="text" id="product-description-edit" name="Description" class="box-w" required>
+
+                    <label for="product-warehouseNumber-edit">Склад :</label>
+                    <input type="number" id="product-warehouseNumber-edit" name="WarehouseNumber" class="box-w" required>
+
+                </div>
+                <div class="inputBox-w">
+                    <label for="product-cost-edit">Стоимость:</label>
+                    <input type="number" id="product-cost-edit" name="Cost" class="box-w" required>
+
+
+                    <label for="product-color-edit">Цвет:</label>
+                    <input type="text" id="product-color-edit" name="Color" class="box-w" required>
+
+                    <label for="product-material-edit">Материал:</label>
+                    <input type="text" id="product-material-edit" name="Material" class="box-w" required>
+
+                    <label for="product-count-edit">Количество:</label>
+                    <input type="number" id="product-count-edit" name="Count" class="box-w" required>
+
+                    <input asp-for="AddProductToWarehouseViewModel.ImageFile" name="ImageFile" id="imageURL-input" class="form-control" style="margin-top:40px;" accept="image/jpg, image/jpeg, image/png" />
+                    <span asp-validation-for="AddProductToWarehouseViewModel.ImageFile" class="text-danger"></span>
+
+                </div>
+            </div>
+            <hr />
+            <button type="submit" class="btn-warehouse" style="width:100%;">Отредактировать</button>
+        </form>
+
+        <div id="confirmMessageEdit" style="margin-top:10px;margin-bottom:10px;text-align:center;color:green;"></div>
+        <div id="errorEdit" style="margin-top:10px;margin-bottom:10px;text-align:center;color:red"></div>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal">
+    <div class="modal-content" style="width:40%;">
+        <div>
+            <span id="closeButtonDelete" class="close-button">&times;</span>
+            <h4 style="text-align:center;">Подтверждение</h4>
+            <form id="deleteForm">
+                <input type="hidden" id="delete-productId" name="ProductId" />
+                <input type="hidden" id="delete-warehouseNumber" name="WarehouseNumber" />
+                <button type="submit" class="btn-warehouse" style="width:100%;">Подтвердить удаление</button>
+            </form>
+            <div id="confirmMessageDelete" style="margin-top:10px;margin-bottom:10px;text-align:center;color:green"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const showHideModal = (modal) => { modal.style.display = modal.style.display === 'block' ? 'none' : 'block'; };
+
+        // const addBtn = document.getElementById('add-btn');
+        // const addBtn2 = document.getElementById('add-btn2');
+
+        const modal = document.getElementById('myModal');
+        const modal2 = document.getElementById('myModal2');
+        const modaleditt = document.getElementById('editModal');
+        const modaldelete = document.getElementById('deleteModal');
+
+
+        document.getElementById('add-btn').addEventListener('click', () => showHideModal(modal));
+        document.getElementById('add-btn2').addEventListener('click', () => showHideModal(modal2));
+
+
+        document.getElementById('closeButton1').addEventListener('click', () => {
+            showHideModal(modal);
+            document.getElementById('confirmMessageAdd1').textContent = '';
+            document.getElementById('errorAddNew').textContent = '';
+            location.reload();
+        });
+
+         document.getElementById('closeButton2').addEventListener('click', () => {
+            showHideModal(modal2);
+            document.getElementById('confirmMessageAdd2').textContent = '';
+            document.getElementById('errorAdd').textContent = '';
+            location.reload();
+        });
+
+        document.getElementById('closeButtondEdit').addEventListener('click', () => {
+            showHideModal(modaleditt);
+            document.getElementById('confirmMessageEdit').textContent = '';
+            document.getElementById('errorEdit').textContent = '';
+            location.reload();
+        });
+        document.getElementById('closeButtonDelete').addEventListener('click', () => {
+            showHideModal(modaldelete);
+            document.getElementById('confirmMessageDelete').textContent = '';
+            location.reload();
+        });
+
+        fetchWarehouseProducts();
+    });
+
+    function fetchWarehouseProducts() {
+        const warehouseSelect = document.getElementById('warehouse-select');
+        const warehouseId = warehouseSelect.value;
+        document.getElementById('warehouse-number').innerText = warehouseSelect.options[warehouseSelect.selectedIndex].text;
+
+        const showHide = (modal) => { modal.style.display = modal.style.display === 'block' ? 'none' : 'block'; };
+
+        fetch(`/Warehouse/GetWarehouseProducts?warehouseNumber=${warehouseId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('warehouse-products');
+                tbody.innerHTML = '';
+                data.forEach(product => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                                <td>${product.id}</td>
+                                <td>${product.name}</td>
+                                <td>${product.productGroup}</td>
+                                <td>${product.provider}</td>
+                                <td>${product.cost}</td>
+                                <td>${product.count}</td>
+                                <td>${product.material}</td>
+                                <td>${product.color}</td>
+
+                                <td>
+                                    <button id="edit-btn" class="edit btn-table-warehouse">Редактировать</button>
+                                    <button id="delete-btn" class="delete btn-table-warehouse">Удалить</button>
+                                </td>
+                                `;
+                    tbody.appendChild(tr);
+
+                    const modalEdit = document.getElementById('editModal');
+                    const editBtn = tr.querySelector('.edit');
+                    editBtn.addEventListener('click', () => {
+                        document.getElementById('product-name-edit').value = product.name;
+                        document.getElementById('product-nameId-edit').value = product.id;
+                        document.getElementById('product-warehouseNumber-edit').value = product.warehouseNumber;
+                        document.getElementById('product-cost-edit').value = product.cost;
+                        document.getElementById('product-description-edit').value = product.description;
+                        document.getElementById('product-color-edit').value = product.color;
+                        document.getElementById('product-material-edit').value = product.material;
+                        document.getElementById('product-count-edit').value = product.count;
+                        document.getElementById('image-edit-output').src = `/images/${product.imageURL}`;
+                        document.getElementById('warehouse-productId-edit').value = product.warehouseProductId;
+                        document.getElementById('warehouseId-edit').value = product.warehouseId;
+
+                        const manufacturerSelect = document.getElementById('product-manufacturer-edit');
+                        const groupSelect = document.getElementById('product-group-edit');
+
+                        for (let i = 0; i < manufacturerSelect.options.length; i++) {
+                            if (manufacturerSelect.options[i].value === product.providerId) {
+                                manufacturerSelect.options[i].selected = true;
+                                break;
+                            }
+                        }
+
+                        for (let i = 0; i < groupSelect.options.length; i++) {
+                            if (groupSelect.options[i].value === product.productGroupId) {
+                                groupSelect.options[i].selected = true;
+                                break;
+                            }
+                        }
+
+                        showHide(modalEdit);
+                    });
+
+
+                    const modeldelete = document.getElementById('deleteModal');
+                    const deleteBtn = tr.querySelector('.delete');
+                    deleteBtn.addEventListener('click', () => {
+
+                        document.getElementById('delete-productId').value = product.id;
+                        document.getElementById('delete-warehouseNumber').value = product.warehouseNumber;
+                        showHide(modeldelete);
+                    });
+
+                });
+            })
+            .catch(error => console.error('Ошибка при загрузке продуктов со склада:', error));
+    }
+
+
+    $(document).ready(function () {
+        $('#deleteForm').submit(function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            var productId = formData.get('ProductId');
+            var warehouseNumber = formData.get('WarehouseNumber');
+            $.ajax({
+                url: `/Warehouse/DeleteProduct?productId=${productId}&warehouseNumber=${warehouseNumber}`,
+                method: 'DELETE',
+                data: {
+                    productId: productId,
+                    warehouseNumber: warehouseNumber
+                },
+                success: function (response) {
+                    $('#confirmMessageDelete').text('Товар удален со склада!');
+                    $('#confirmMessageDeletet').css(' color', 'green');
+                    fetchWarehouseProducts();
+                },
+                error: function (xhr, status, error) {
+                    $('#confirmMessageDelete').text('Ошибка при удалении.');
+                    $('#confirmMessageDelete').css(' color', 'red');
+                }
+            });
+        });
+    });
+
+
+    document.getElementById('add-product-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+
+        fetch('/Warehouse/AddProductToWarehouse', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                $('#confirmMessageAdd1').text('Товар добавлен на склад');
+                fetchWarehouseProducts();
+            }
+             else $('#errorAddNew').text('Заполните все поля корректно.');
+        })
+        .catch(error => console.error('Ошибка при добавлении продукта:', error));
+    });
+
+    $(document).ready(function () {
+        $('#add-product-to-warehouse-form').submit(function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: '/Warehouse/AddExistingProductToWarehouse',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    if (result.success) {
+                        $('#confirmMessageAdd2').text('Товар добавлен на склад');
+                        fetchWarehouseProducts();
+                    }
+                    else $('#errorAdd').text('Заполните все поля корректно.');
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr.responseText);
+                }
+            });
+        });
+    });
+
+    $(document).ready(function () {
+        $('#edit-product-form').submit(function (e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+            var selectedImage = $('#image-edit-output').attr('src');
+            var imagePath = selectedImage.replace('/images/', '');
+            formData.append('ImageURL', imagePath);
+
+            $.ajax({
+                url: '/Warehouse/EditProductWarehouse',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    if (result.success) {
+                        $('#confirmMessageEdit').text('Товар обновлен!');
+                        fetchWarehouseProducts();
+                    }
+                    else $('#errorEdit').text('Заполните все поля корректно.');
+                },
+                error: function (xhr, status, error) {
+                    $('#confirmMessageEdit').css(' color', 'red');
+                    $('#confirmMessageEdit').text('Ошибка при обновлении.');
+
+                }
+            });
+        });
+    });
+
+
+</script>
+
+<style>
+    #editModal .modal-content {
+        width: 740px;
+    }
+
+    .product-image {
+        width: 670px;
+        margin: 10px;
+    }
+
+    #edit-product-form .flex-w,
+    #add-product-to-warehouse-form .flex-w,
+    #add-product-form .flex-w {
+        display: flex;
+        justify-content: space-between;
+        margin: 0px 10px 10px 10px;
+        gap: 10px;
+    }
+
+    #edit-product-form .flex-w .inputBox-w,
+    #add-product-to-warehouse-form .flex-w .inputBox-w,
+    #add-product-form .flex-w .inputBox-w {
+        width: 50%;
+    }
+
+    #edit-product-form .flex-w .inputBox-w label,
+    #add-product-to-warehouse-form .flex-w .inputBox-w label,
+    #add-product-form .flex-w .inputBox-w label {
+        text-align: left;
+        display: block;
+        margin-top: 15px;
+        font-size: 17px;
+        color: #162938;
+    }
+
+    #edit-product-form .flex-w .inputBox-w .box-w,
+    #add-product-to-warehouse-form .flex-w .inputBox-w .box-w,
+    #add-product-form .flex-w .inputBox-w .box-w {
+        width: 100%;
+        font-size: 17px;
+        color: #162938;
+        margin-top: 10px;
+        background: transparent;
+        border: none;
+        outline: none;
+        border-bottom: 2px solid #162938;
+    }
+
+
+
+
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        padding-top: 100px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    .edit-btn, .delete-btn {
+        margin-right: 5px;
+    }
+
+    .head {
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .select {
+        border: 1px solid #162938;
+        color: #162938;
+        width: 100px;
+        height: 30px;
+        padding: 0px;
+        padding-left: 10px;
+        white-space: nowrap;
+        display: inline-block;
+    }
+
+
+    .table-warehouse {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+        font-family: 'Poppins',sans-serif;
+        border: 1px solid #C8A98F;
+    }
+
+        .table-warehouse thead th {
+            background-color: #C8A98F;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+        }
+
+        .table-warehouse tbody td {
+            padding: 8px;
+        }
+
+        .table-warehouse tbody tr:nth-child(even) {
+            /* background-color: white; */
+        }
+
+        .table-warehouse tbody tr:hover {
+            background-color: #e3d4c7;
+        }
+
+    .btn-table-warehouse {
+        background: white;
+        outline: none;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1em;
+        color: #C8A98F;
+        border: 1px solid #C8A98F;
+        transition: .5s;
+        padding: 7px;
+    }
+
+        .btn-table-warehouse:hover {
+            background: #C8A98F;
+            color: #fff;
+        }
+
+    .btn-warehouse {
+        background: #C8A98F;
+        outline: none;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 1em;
+        color: #fff;
+        border: 1px solid #C8A98F;
+        transition: .5s;
+        padding: 7px;
+    }
+
+        .btn-warehouse:hover {
+            background: white;
+            border: 1px solid #C8A98F;
+            color: #C8A98F;
+        }
+
+    .buttons {
+        text-align: center;
+        margin-top: 20px;
+        font-family: 'Poppins',sans-serif;
+    }
+
+        .buttons button {
+            display: block;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+</style>

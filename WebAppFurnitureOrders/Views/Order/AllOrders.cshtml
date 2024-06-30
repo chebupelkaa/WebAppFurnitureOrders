@@ -1,0 +1,118 @@
+﻿@using WebAppFurnitureOrders.ViewModels;
+@model OrdersViewModel
+
+<div class="container">
+
+    @if (Model.CustomOrders.Any())
+    {
+        <h4 class="orders-head">Заказы с параметрами</h4>
+        <table class="table-warehouse">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Товар</th>
+                    <th>Описание</th>
+                    <th>Стоимость</th>
+                    <th>Статус</th>
+                    <th>Прогресс</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.CustomOrders)
+                {
+                    <tr>
+                        <td>@order.Date.ToString("dd.MM.yyyy")</td>
+                        <td>@order.Product.Name</td>
+                        <td>@order.Product.Description</td>
+                        <td>@order.TotalCost руб.</td>
+                        <td>@order.Status</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: @order.ProgressCount%;" aria-valuenow="@order.ProgressCount" aria-valuemin="0" aria-valuemax="100">
+                                    @order.ProgressCount%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            @if (@order.Status != "Отменен" && @order.ProgressCount==0)
+                            {
+                                <button class="btn-warehouse" onclick="Update(@order.Id,'@order.Status')">Отменить</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+    </table>
+    }
+    @if (Model.RegularOrders.Any()){
+        <h4 class="orders-head">Заказы из каталога</h4>
+
+        <table class="table-warehouse">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Товарная группа</th>
+                    <th>Наименование</th>
+                    <th>Цвет</th>
+                    <th>Общая стоимость</th>
+                    <th>Статус</th>
+                    <th>Прогресс</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.RegularOrders)
+                {
+                    <tr>
+                        <td>@order.Date.ToString("dd.MM.yyyy")</td>
+                        <td>@order.Product.ProductGroup.Name</td>
+                        <td>@order.Product.Name</td>
+                        <td>@order.Color</td>
+                        <td>@order.TotalCost руб.</td>
+                        <td>@order.Status</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: @order.ProgressCount%;" aria-valuenow="@order.ProgressCount" aria-valuemin="0" aria-valuemax="100">
+                                    @order.ProgressCount%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            @if (@order.Status != "Отменен" && @order.ProgressCount == 0)
+                            {
+                                <button class="btn-warehouse" onclick="Update(@order.Id,'@order.Status')">Отменить</button>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn-warehouse" onclick="redirectToDetails(@order.ProductId)">К товару</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+<script>
+    function redirectToDetails(productId) {
+        window.location.href = '/Home/Details?productId=' + productId;
+    }
+    function Update(orderId,status) {
+
+        if (status !== 'Отменен') {
+            $.ajax({
+                url: '/Order/UpdateStatus',
+                type: 'GET',
+                data: { orderId: orderId, newStatus: 'Отменен' },
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+
+                }
+            });
+        }
+    }
+
+</script>

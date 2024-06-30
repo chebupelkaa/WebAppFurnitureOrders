@@ -1,0 +1,17 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+
+<h4 style="text-align:center;padding-top:10px;">Список пользователей</h4>
+
+<a asp-action="Index" style="padding-left:10px;">Список ролей</a>
+<table class="table">
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.Email</td>
+            <td>
+
+                <a class="btn-warehouse" asp-action="Edit" asp-route-userid="@user.Id" style="text-decoration:none;">Права доступа</a>
+            </td>
+        </tr>
+    }
+</table>

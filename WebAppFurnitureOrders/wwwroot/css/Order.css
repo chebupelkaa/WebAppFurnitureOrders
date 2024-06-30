@@ -1,0 +1,60 @@
+﻿#scene-container {
+    width: 700px;
+    height: 600px; 
+}
+.progress {
+    height: 20px;
+    margin-bottom: 0;
+    background-color: lightgray;
+
+
+}
+
+.progress-bar {
+    font-size: 12px;
+    line-height: 20px;
+    background-color: limegreen;
+    text-align: center;
+
+    overflow: visible; /* Добавляем overflow: visible; */
+    white-space: nowrap;
+}
+
+.orders-head {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+
+
+.filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.filter-container label {
+    width: 12%;
+    margin-right: 10px;
+}
+
+.filter-container .form-control {
+    width: 40%;
+    margin-right: 30px;
+}
+
+.regular-table-container {
+    height: 500px;
+    overflow-y: auto !important;
+    border: 2px solid #C8A98F;
+    background-color:white;
+    padding:15px;
+    border-radius:10px;
+}
+
+
+/*.filter-container .btn-warehouse {
+    white-space: nowrap;
+}*/

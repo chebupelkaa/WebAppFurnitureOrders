@@ -1,0 +1,96 @@
+﻿@model List<ProductViewModel>
+
+<div class="catalog-div">
+    <ul class="nav nav-pills">
+        <li class="nav-item">
+            <a class="nav-link filter-link" href="/Home/Catalog" data-furniture-type="Шкаф">Шкафы</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link filter-link" href="/Home/Catalog" data-furniture-type="Стул">Стулья</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link filter-link" href="/Home/Catalog" data-furniture-type="Стол">Столы</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link filter-link" href="/Home/Catalog" data-furniture-type="Комод">Комоды</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link filter-link" href="/Home/Catalog" data-furniture-type="Тумба">Тумбы</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link filter-link" href="/Home/Catalog" data-furniture-type="Диван">Диваны</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link " href="/Order/ToOrder">Под заказ</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link  filter-link" href="/Home/Catalog" data-furniture-type="Другое">Другое</a>
+        </li>
+        <li class="nav-item">
+            <div class="searchDiv">
+                <form id="searchForm" class="formSearch">
+                    <input id="searchInput" type="text" placeholder="Искать здесь...">
+                    <button type="submit"></button>
+                </form>
+            </div>
+        </li>
+
+    </ul>
+
+</div>
+
+
+@if (ViewBag.Results != null)
+{
+    var results = ViewBag.Results as List<ProductViewModel>;
+    @Html.Partial("Filtered", results)
+}
+else
+{
+    @Html.Partial("Filtered", Model)
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.filter-link').click(function (e) {
+            e.preventDefault();
+            var furnitureType = $(this).data('furniture-type');
+
+            $.ajax({
+                url: '/Home/Filtered',
+                type: 'GET',
+                data: { furnitureType: furnitureType },
+                success: function (data) {
+                    $('body').html(data);
+                    updatePagination();
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert('Ошибка: ' + error);
+                }
+            });
+        });
+
+        $('#searchForm').submit(function (e) {
+            e.preventDefault(); 
+            var searchText = $('#searchInput').val();
+            $.ajax({
+                url: '/Home/Search',
+                type: 'GET',
+                data: { searchText: searchText },
+                success: function (data) {
+                    $('body').html(data);
+                },
+                error: function () {
+                    console.error('Ошибка при выполнении запроса на сервер.');
+                    alert('Ошибка при выполнении запроса на сервер.');
+                }
+            });
+        });
+    });
+   
+
+</script>

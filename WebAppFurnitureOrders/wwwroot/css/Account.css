@@ -1,0 +1,142 @@
+﻿
+.user-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 60px;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.sub-menu-wrap-user {
+    position: absolute;
+    top:88%;
+    right: 0px;
+    width: 400px;
+    max-height: 0px;
+    overflow: hidden;
+    transition: max-height 0.5s;
+}
+
+.open-menu {
+    max-height: 400px;
+}
+
+.sub-menu-user {
+    border: 2px solid #C8A98F;
+    background: #fff;
+    padding: 15px;
+    margin: 20px 10px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-info h3 {
+   font-weight:100;
+   font-size:20px;
+   padding-top:10px;
+}
+/*.user-info p {
+    margin-top:10px;
+}
+*/
+.user-info-inside small {
+    color:gray;
+}
+.user-info img {    
+    width: 55px;
+    height:55px;
+    margin-top:10px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.sub-menu-user hr {
+    border: 0;
+    height: 1px;
+    width: 100%;
+    background: #C8A98F;
+    margin: 15px 0 10px;
+}
+
+header .headerNav .headerUl .headerLi .sub-menu-link-user {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #C8A98F;
+    margin: 12px 0;
+
+}
+
+header .headerNav .headerUl .headerLi .sub-menu-link-user p {
+    width: 100%;
+    color: #C8A98F;
+    padding-top:10px;
+    font-size: 18px;
+}
+
+header .headerNav .headerUl .headerLiv .sub-menu-link-user span {
+    font-size: 18px;
+    color: #C8A98F;
+    transition: transform 0.5s;
+}
+
+header .headerNav .headerUl .headerLi .sub-menu-link-user:hover span {
+    transform: translate(5px);
+}
+
+header .headerNav .headerUl .headerLi .sub-menu-link-user:hover p {
+    font-weight: 600;
+}
+
+
+
+
+
+
+
+/********************/
+.checkbox-list-item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #C8A98F;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+    .checkbox-list-item input[type="checkbox"]:checked::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 12px;
+        height: 12px;
+        background-color: #C8A98F;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+.checkbox-list-item label {
+    cursor: pointer;
+    font-weight: normal;
+    margin-left: 5px;
+}
+
+.checkbox-list-item:hover input[type="checkbox"] {
+    border-color: #162938;
+}
+
+    .checkbox-list-item:hover input[type="checkbox"]:checked::before {
+        background-color: #162938;
+    }
